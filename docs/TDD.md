@@ -72,6 +72,28 @@ images while retaining the existing script, connection, framing, and mutation
 boundaries. CSS and JavaScript did not change, so their asset versions were not
 bumped.
 
+## Mobile evidence-row regression
+
+Independent `390px` visual acceptance found status labels such as `DELETED` and
+`PASS` splitting across lines, long paths wrapping without preserving the status
+column, and the complete receipt becoming unnecessarily tall after collapsing
+to one column. RED: the focused CSS contract failed for all three conditions.
+GREEN: path cells can shrink and wrap anywhere, status cells are nonshrinking
+and nowrap, and the receipt retains its semantic two-column grid with tighter
+mobile spacing. Every receipt field and its DOM reading order remain unchanged;
+the versioned stylesheet URL was bumped because CSS changed.
+
+## Mobile path-break regression
+
+Follow-up `390px` acceptance showed `scratch/old_benchmark.txt` breaking as
+`scratch/old_benchmark.t` plus an orphan `xt` because the global arbitrary-wrap
+policy still applied inside path cells. RED: focused regressions failed because
+file paths had no separator-aware break markup and CSS used `overflow-wrap:
+anywhere`. GREEN: every path segment is escaped independently and joined only
+with the fixed `/<wbr>` marker; path cells prefer those directory boundaries and
+use `break-word` solely as an overflow fallback. A basename and extension remain
+together whenever they fit, without inserting raw path content into HTML.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,

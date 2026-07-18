@@ -87,13 +87,17 @@ function clearError() {
   $('errorPanel').classList.add('hidden');
 }
 
+function pathHtml(value) {
+  return String(value).split('/').map(esc).join('/<wbr>');
+}
+
 function fileRows(preview) {
   const groups = [
     [preview.added, 'ADDED', 'pass'], [preview.changed, 'CHANGED', ''],
     [preview.deleted, 'DELETED', 'deleted'], [preview.broken_references, 'BROKEN REF', 'fail']
   ];
   return groups.flatMap(([paths, label, className]) => paths.map(path =>
-    `<div class="file"><span>${esc(path)}</span><span class="${className}">${label}</span></div>`
+    `<div class="file"><span>${pathHtml(path)}</span><span class="${className}">${label}</span></div>`
   )).join('');
 }
 

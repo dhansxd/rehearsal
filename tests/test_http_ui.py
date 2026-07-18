@@ -117,6 +117,29 @@ class BrowserRegressionTests(unittest.TestCase):
         handler.do_GET()
         self.assertIn("img-src 'self' data:", handler.response_headers["Content-Security-Policy"])
 
+    def test_mobile_evidence_rows_preserve_status_and_compact_receipt(self):
+        css = (ROOT / "web/style.css").read_text()
+        self.assertIn(
+            ".file span:first-child,.clause span:first-child{min-width:0;flex:1 1 auto;overflow-wrap:break-word;word-break:normal}",
+            css,
+        )
+        self.assertIn(
+            ".file span:last-child,.clause span:last-child{white-space:nowrap;flex:0 0 auto}",
+            css,
+        )
+        self.assertIn(
+            "@media(max-width:760px){.receipt-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}",
+            css,
+        )
+
+    def test_file_paths_use_escaped_separator_breaks(self):
+        script = (ROOT / "web/app.js").read_text()
+        self.assertIn("function pathHtml(value)", script)
+        self.assertIn("String(value).split('/').map(esc).join('/<wbr>')", script)
+        file_rows = script[script.index("function fileRows"):script.index("function render")]
+        self.assertIn("${pathHtml(path)}", file_rows)
+        self.assertNotIn("${esc(path)}", file_rows)
+
     def test_receipt_has_full_evidence_export_and_verification_help(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()

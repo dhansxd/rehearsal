@@ -26,7 +26,7 @@ Open <http://127.0.0.1:8765>. For the live model path, export
 **deterministic demo fallback**; all filesystem consequences, tests, hashes,
 diffs, and proofs remain real in both modes.
 
-## 90-second demo
+## 42-second demo
 
 1. Click **Run rehearsal** for “remove unused project files.”
 2. The red future state genuinely deletes the documented public example. Its
@@ -59,6 +59,16 @@ python3 -m unittest discover -v
 → correction → safe rehearsal → approve/verify → rollback path in a temporary
 directory.
 
+Expected proof shape:
+
+```text
+Ran 51 tests
+OK
+ready → unsafe → safe → applied → rolled_back
+verified: true
+rollback: completed and verified
+```
+
 ## Runtime model integration
 
 With `OPENAI_API_KEY`, Rehearsal calls the OpenAI Responses API using `gpt-5.6`
@@ -89,9 +99,10 @@ local-demo protection, not authentication.
 ## Built with Codex and GPT-5.6
 
 Codex CLI with official ChatGPT authentication and GPT-5.6 served as the sole
-implementation owner for the product vertical slice. One canonical thread
-performed strict TDD, implemented the engine and UI, fixed browser regressions,
-and closed the independent security review. Rehearsal's optional live runtime
+implementation owner for product code. One canonical thread performed strict
+TDD, implemented the engine and UI, fixed browser regressions, and closed the
+independent security review. Dyra directed product scope, research, media, and
+independent acceptance without becoming a second code owner. Rehearsal's optional live runtime
 also uses GPT-5.6 for bounded contract compilation and consequence explanation;
 deterministic measurement remains authoritative.
 
@@ -103,6 +114,8 @@ Canonical Codex `/feedback` Session ID:
 - [Architecture](docs/ARCHITECTURE.md)
 - [Safety boundaries](docs/SAFETY.md)
 - [Prior-art challenge and product rationale](docs/PRODUCT_RATIONALE.md)
+- [Competitive landscape and defensible novelty](docs/research/competitive-landscape.md)
+- [Huashu render provenance and governance](docs/HUASHU_PROVENANCE.md)
 - [TDD evidence](docs/TDD.md)
 
 ## License
