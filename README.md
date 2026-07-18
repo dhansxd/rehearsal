@@ -12,6 +12,11 @@ This Build Week vertical slice is deliberately narrow: a polished, local demo
 for Git/filesystem cleanup tasks over the bundled trusted seed. It never
 executes user-supplied commands or tests from an arbitrary repository.
 
+![Rehearsal showing a measured safe future state before exact approval](docs/assets/rehearsal-safe-approval.png)
+
+The candidate above has not changed the target project: every consequence and
+contract clause is measured first, then one exact preview can be approved.
+
 ## Run locally
 
 Requirements: Git 2.20+ and Python 3.11+. There are no third-party packages.
@@ -95,6 +100,13 @@ local-demo protection, not authentication.
 ## Demo video
 
 [Watch the 42-second enterprise live-product demo on YouTube](https://youtu.be/-yZ-59OqS2w).
+
+## Verification receipt
+
+![Verified execution receipt with digests, contract proof, and rollback availability](docs/assets/rehearsal-verified-receipt.png)
+
+After apply, Rehearsal re-measures the observed state, reruns trusted-seed tests
+and every contract clause, and exposes the evidence in a downloadable receipt.
 
 ## Built with Codex and GPT-5.6
 
