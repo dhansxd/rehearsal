@@ -94,6 +94,18 @@ with the fixed `/<wbr>` marker; path cells prefer those directory boundaries and
 use `break-word` solely as an overflow fallback. A basename and extension remain
 together whenever they fit, without inserting raw path content into HTML.
 
+## Public evidence drift gate
+
+A prior public-artifact review found README and submission test-count claims had
+drifted from the repository. RED: the new evidence-verification command did not
+exist. Its first implementation then failed closed when test discovery used the
+script directory as the import root and counted import-failure placeholders.
+GREEN: `scripts/verify-public-evidence.py` now discovers tests from the explicit
+repository root and verifies the derived test count in README and the submission
+draft, canonical Codex session ID, video and repository URLs, and both tracked
+gallery PNGs with minimum dimensions and SHA-256 output. CI and
+`verify-clean.sh` run the gate so future public-claim drift fails visibly.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,
