@@ -67,7 +67,7 @@ directory.
 Expected proof shape:
 
 ```text
-Ran 51 tests
+Ran 53 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true
