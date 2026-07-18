@@ -82,7 +82,7 @@ rollback: completed and verified
 
 - Repository: https://github.com/dhansxd/rehearsal
 - Demo video: pending public YouTube URL
-- Codex `/feedback` session proof: pending submission capture
+- Codex `/feedback` session proof: `019f7351-793e-7093-bc96-72e49183379b` (canonical official GPT-5.6 Codex thread; feedback form submitted)
 
 ## Honest scope
 

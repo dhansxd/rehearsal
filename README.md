@@ -80,6 +80,18 @@ The server binds only to loopback. Requests require a loopback Host and POSTs
 require a matching HTTP Origin. Approval binds the displayed preview ID and
 patch digest. This is single-user local-demo protection, not authentication.
 
+## Built with Codex and GPT-5.6
+
+Codex CLI with official ChatGPT authentication and GPT-5.6 served as the sole
+implementation owner for the product vertical slice. One canonical thread
+performed strict TDD, implemented the engine and UI, fixed browser regressions,
+and closed the independent security review. Rehearsal's optional live runtime
+also uses GPT-5.6 for bounded contract compilation and consequence explanation;
+deterministic measurement remains authoritative.
+
+Canonical Codex `/feedback` Session ID:
+`019f7351-793e-7093-bc96-72e49183379b`.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
