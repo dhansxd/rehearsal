@@ -84,7 +84,7 @@ local-demo protection, not authentication.
 
 ## Demo video
 
-[Watch the 82-second public demo on YouTube](https://youtu.be/DtrSfGfx0og).
+[Watch the 82-second public demo on YouTube](https://youtu.be/mTW_jWvzU4k).
 
 ## Built with Codex and GPT-5.6
 
