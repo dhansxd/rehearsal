@@ -46,6 +46,32 @@ URLs. RED: tests showed both missing version query strings and a missing
 static responses carry `Cache-Control: no-store`, preventing stale demo assets
 across source updates.
 
+## Keyboard correction focus regression
+
+Independent Playwright acceptance found that Tab from the unsafe correction
+field did not reliably land on the intended Re-rehearse control. The correction
+UI depended on a generic container and click-only handler, leaving sequential
+focus and keyboard submission to browser/platform focus policy.
+
+RED: the focused UI regression failed because correction was not a form, its
+button was not an explicit submit/focus target, and JavaScript used only an
+`onclick` handler. GREEN: correction is now a native form, Re-rehearse is an
+explicit sequential submit control, and the form submit handler preserves the
+same bounded `/api/correct` request. Live desktop/mobile Playwright verification
+is delegated to independent acceptance because the implementation sandbox
+cannot reach the already-running loopback server.
+
+## Console-clean favicon regression
+
+Independent desktop/mobile acceptance passed the complete keyboard path and
+responsive overflow checks, but Chrome emitted a real `404` while probing the
+implicit `/favicon.ico` URL. RED: the focused UI regression failed because the
+document declared no icon. GREEN: the page now embeds a deterministic SVG
+favicon as a data URL, requiring no HTTP request; CSP permits `data:` only for
+images while retaining the existing script, connection, framing, and mutation
+boundaries. CSS and JavaScript did not change, so their asset versions were not
+bumped.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,

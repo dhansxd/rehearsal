@@ -146,7 +146,10 @@ function esc(value) {
 }
 
 $('run').onclick = () => post('/api/rehearse', {intent: $('prompt').value});
-$('correct').onclick = () => post('/api/correct', {correction: $('fix').value});
+$('correction').onsubmit = event => {
+  event.preventDefault();
+  post('/api/correct', {correction: $('fix').value});
+};
 $('approve').onclick = () => post('/api/approve', {preview_id: state.preview.id, patch_digest: state.preview.patch_digest});
 $('rollback').onclick = () => post('/api/rollback');
 $('reset').onclick = () => post('/api/reset');

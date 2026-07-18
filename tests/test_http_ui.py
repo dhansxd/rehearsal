@@ -100,6 +100,23 @@ class BrowserRegressionTests(unittest.TestCase):
         self.assertNotRegex(css, r"footer\{[^}]*position:fixed")
         self.assertIn("overflow-wrap:anywhere", css)
 
+    def test_keyboard_correction_has_explicit_submit_focus_path(self):
+        html = (ROOT / "web/index.html").read_text()
+        script = (ROOT / "web/app.js").read_text()
+        self.assertRegex(html, r'<form id="correction"[^>]*>')
+        self.assertRegex(html, r'<button id="correct" type="submit" tabindex="0">')
+        self.assertIn("$('correction').onsubmit = event =>", script)
+        self.assertIn("event.preventDefault()", script)
+        self.assertNotIn("$('correct').onclick", script)
+
+    def test_inline_favicon_avoids_default_network_request(self):
+        html = (ROOT / "web/index.html").read_text()
+        self.assertRegex(html, r'<link rel="icon" href="data:image/svg\+xml,[^"]+">')
+        self.assertNotIn('href="/favicon.ico"', html)
+        handler = CapturedHandler("/", FakeController())
+        handler.do_GET()
+        self.assertIn("img-src 'self' data:", handler.response_headers["Content-Security-Policy"])
+
     def test_receipt_has_full_evidence_export_and_verification_help(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()
