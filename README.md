@@ -40,7 +40,8 @@ diffs, and proofs remain real in both modes.
    compiles that correction into contract clauses (or the labeled fallback does
    so when no key is configured).
 4. The second isolated rehearsal is green: junk is deleted, the example is
-   preserved, tests and clauses pass. A measured comparison shows exactly what
+   preserved, tests and clauses pass. Each clause shows its deterministic proof
+   method/result. A measured comparison shows exactly what
    the correction changed: the prevented deletion and before→after test,
    reference, and contract proof.
 5. Inspect the exact preview, patch, base commit/index, and contract binding,
@@ -70,7 +71,7 @@ directory.
 Expected proof shape:
 
 ```text
-Ran 56 tests
+Ran 57 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true

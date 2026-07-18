@@ -129,6 +129,17 @@ copying the full patch digest, and hides the card outside that state. Rendering
 uses `textContent`; the approval request remains bound to the same preview ID
 and patch digest, with no controller or protocol change.
 
+## Visible contract-clause evidence
+
+The engine already measured proof evidence for every Outcome Contract clause,
+but the browser reduced each result to only `PASS` or `VIOLATED`. RED: the
+focused UI contract failed because neither deterministic evidence nor proof
+method was rendered. GREEN: clause rows now expose the existing Git diff,
+SHA-256 identity, test summary, and reference-scan method/result. Both labels
+and evidence are escaped before insertion; no model output, execution behavior,
+approval binding, or server schema changed. Narrow layouts retain a nonshrinking
+status column and allow only the evidence text to wrap safely.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,

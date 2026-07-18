@@ -101,6 +101,13 @@ function fileRows(preview) {
   )).join('');
 }
 
+function clauseRows(preview) {
+  return preview.contract_proof.clauses.map(clause => {
+    const evidence = [clause.proof, clause.evidence].filter(Boolean).join(' · ');
+    return `<div class="clause"><div class="clause-detail"><span>${esc(clause.clause)}</span><small class="clause-evidence">${esc(evidence)}</small></div><span class="${clause.passed ? 'pass' : 'fail'}">${clause.passed ? 'PASS' : 'VIOLATED'}</span></div>`;
+  }).join('');
+}
+
 function render() {
   $('mode').textContent = state.model_mode || 'MODEL';
   $('workspaceState').textContent = workspaceMessages[state.stage] || workspaceMessages.ready;
@@ -132,7 +139,7 @@ function render() {
   $('metrics').innerHTML = `<span class="metric"><strong>${preview.deleted.length}</strong> deleted</span><span class="metric"><strong>${preview.disk_delta}</strong> bytes</span><span class="metric ${preview.tests.passed ? 'pass' : 'fail'}">tests <strong>${preview.tests.passed ? 'PASS' : 'FAIL'}</strong></span>`;
   $('files').innerHTML = fileRows(preview);
   $('intent').textContent = preview.contract.intent;
-  $('clauses').innerHTML = preview.contract_proof.clauses.map(clause => `<div class="clause"><span>${esc(clause.clause)}</span><span class="${clause.passed ? 'pass' : 'fail'}">${clause.passed ? 'PASS' : 'VIOLATED'}</span></div>`).join('');
+  $('clauses').innerHTML = clauseRows(preview);
   $('approvalBinding').classList.toggle('hidden', state.stage !== 'safe');
   $('bindingPreview').textContent = preview.id;
   $('bindingPatch').textContent = preview.patch_digest;

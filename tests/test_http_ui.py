@@ -174,6 +174,16 @@ class BrowserRegressionTests(unittest.TestCase):
         self.assertIn("state.stage !== 'safe'", script)
         self.assertIn("navigator.clipboard.writeText(state.preview.patch_digest)", script)
 
+    def test_contract_clauses_expose_escaped_deterministic_evidence(self):
+        script = (ROOT / "web/app.js").read_text()
+        css = (ROOT / "web/style.css").read_text()
+        self.assertIn("clause.evidence", script)
+        self.assertIn("clause.proof", script)
+        self.assertIn("esc(evidence)", script)
+        self.assertIn('class="clause-evidence"', script)
+        self.assertIn(".clause-evidence{", css)
+        self.assertIn("overflow-wrap:break-word", css)
+
     def test_long_operations_show_named_accessible_progress(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()
