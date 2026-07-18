@@ -119,6 +119,16 @@ function render() {
   $('badge').textContent = state.stage === 'applied' ? 'VERIFIED' : state.stage === 'rolled_back' ? 'ROLLED BACK' : safe ? 'READY TO APPROVE' : 'BLOCKED';
   $('badge').className = 'badge ' + (safe || state.stage === 'rolled_back' ? 'good' : 'bad');
   $('explanation').textContent = `${preview.explanation} [${preview.explanation_mode}]`;
+  const comparison = state.comparison;
+  $('comparison').classList.toggle('hidden', !comparison);
+  if (comparison) {
+    const passLabel = value => value ? 'PASS' : 'FAIL';
+    $('comparisonPrevented').textContent = comparison.prevented_deletions.length;
+    $('comparisonTests').textContent = `${passLabel(comparison.tests_passed.before)} → ${passLabel(comparison.tests_passed.after)}`;
+    $('comparisonReferences').textContent = `${comparison.broken_references.before} → ${comparison.broken_references.after}`;
+    $('comparisonContract').textContent = `${passLabel(comparison.contract_passed.before)} → ${passLabel(comparison.contract_passed.after)}`;
+    $('comparisonPaths').innerHTML = comparison.prevented_deletions.map(path => `<span>${pathHtml(path)}</span>`).join('');
+  }
   $('metrics').innerHTML = `<span class="metric"><strong>${preview.deleted.length}</strong> deleted</span><span class="metric"><strong>${preview.disk_delta}</strong> bytes</span><span class="metric ${preview.tests.passed ? 'pass' : 'fail'}">tests <strong>${preview.tests.passed ? 'PASS' : 'FAIL'}</strong></span>`;
   $('files').innerHTML = fileRows(preview);
   $('intent').textContent = preview.contract.intent;

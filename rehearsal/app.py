@@ -35,6 +35,7 @@ class DemoController:
         self.explainer = ConsequenceExplainer(demo_mode)
         self.engine = None
         self.preview = None
+        self.comparison = None
         self.receipt = None
         self.stage = "not_ready"
         self.lock = threading.RLock()
@@ -57,7 +58,7 @@ class DemoController:
                 subprocess.run(["git", *args], cwd=self.workspace, check=True)
             self.engine = RehearsalEngine(self.workspace, self.runtime_root / "engine-state", trusted_seed=True)
             self.engine.model_mode = self.compiler.mode
-            self.preview = self.receipt = None
+            self.preview = self.comparison = self.receipt = None
             self.stage = "ready"
             return self.state()
 
@@ -70,6 +71,7 @@ class DemoController:
         with self.lock:
             if not self.engine:
                 self.reset()
+            self.comparison = None
             self.preview = self.engine.rehearse(intent)
             self._semantic_explanation()
             self.stage = "safe" if self.preview.contract_proof.passed else "unsafe"
@@ -79,9 +81,11 @@ class DemoController:
         with self.lock:
             if not self.preview:
                 raise ValueError("Run the first rehearsal before correcting it")
-            contract = self.compiler.compile(correction, self.preview.contract)
+            before = self.preview
+            contract = self.compiler.compile(correction, before.contract)
             self.preview = self.engine.rehearse(contract.intent, contract)
             self._semantic_explanation()
+            self.comparison = self._compare_previews(before, self.preview)
             self.stage = "safe" if self.preview.contract_proof.passed else "unsafe"
             return self.state()
 
@@ -111,9 +115,29 @@ class DemoController:
                 preview["contract"] = self.preview.contract.to_dict()
                 preview.pop("patch", None)
                 result["preview"] = preview
+            if self.comparison:
+                result["comparison"] = self.comparison
             if self.receipt:
                 result["receipt"] = self.engine.receipt_dict(self.receipt)
             return result
+
+    @staticmethod
+    def _compare_previews(before, after):
+        before_deleted = set(before.deleted)
+        after_deleted = set(after.deleted)
+        return {
+            "from_preview_id": before.id,
+            "to_preview_id": after.id,
+            "prevented_deletions": sorted(before_deleted - after_deleted),
+            "new_deletions": sorted(after_deleted - before_deleted),
+            "tests_passed": {"before": before.tests.passed, "after": after.tests.passed},
+            "broken_references": {
+                "before": len(before.broken_references), "after": len(after.broken_references),
+            },
+            "contract_passed": {
+                "before": before.contract_proof.passed, "after": after.contract_proof.passed,
+            },
+        }
 
     def _semantic_explanation(self):
         p = self.preview

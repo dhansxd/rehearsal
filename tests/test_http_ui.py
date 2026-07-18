@@ -150,6 +150,17 @@ class BrowserRegressionTests(unittest.TestCase):
         self.assertIn("application/json", script)
         self.assertIn("receipt.patch_digest", script)
 
+    def test_ui_exposes_accessible_measured_preview_comparison(self):
+        html = (ROOT / "web/index.html").read_text()
+        script = (ROOT / "web/app.js").read_text()
+        self.assertIn('id="comparison"', html)
+        self.assertIn('aria-labelledby="comparisonTitle"', html)
+        for field in ("comparisonPrevented", "comparisonTests", "comparisonReferences", "comparisonContract"):
+            self.assertIn(f'id="{field}"', html)
+        for evidence in ("prevented_deletions", "tests_passed", "broken_references", "contract_passed"):
+            self.assertIn(evidence, script)
+        self.assertNotIn("examples/public_api.py", script)
+
     def test_long_operations_show_named_accessible_progress(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()

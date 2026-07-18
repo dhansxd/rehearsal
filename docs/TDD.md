@@ -106,6 +106,18 @@ draft, canonical Codex session ID, video and repository URLs, and both tracked
 gallery PNGs with minimum dimensions and SHA-256 output. CI and
 `verify-clean.sh` run the gate so future public-claim drift fails visibly.
 
+## Measured preview comparison
+
+The corrected preview previously replaced the unsafe preview, forcing users to
+remember which consequences changed. RED: controller coverage failed with a
+missing `comparison` object and UI coverage failed with no accessible comparison
+region. GREEN: a correction now derives a before→after delta from the two real
+preview objects: exact preview IDs, prevented/new deletions, test status, broken
+reference count, and contract status. A reset or independent rehearsal clears
+the delta. The UI renders only those measured values and reuses escaped,
+separator-aware path formatting; approval remains bound solely to the current
+preview ID and patch digest.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,

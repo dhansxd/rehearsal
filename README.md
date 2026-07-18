@@ -40,7 +40,9 @@ diffs, and proofs remain real in both modes.
    compiles that correction into contract clauses (or the labeled fallback does
    so when no key is configured).
 4. The second isolated rehearsal is green: junk is deleted, the example is
-   preserved, tests and clauses pass.
+   preserved, tests and clauses pass. A measured comparison shows exactly what
+   the correction changed: the prevented deletion and before→after test,
+   reference, and contract proof.
 5. Approve the exact state. Rehearsal applies the approved binary Git patch,
    matches the patch digest and every file hash, re-runs tests and proof, and
    emits an inspectable, downloadable receipt. Approvals expire after five
@@ -67,7 +69,7 @@ directory.
 Expected proof shape:
 
 ```text
-Ran 53 tests
+Ran 55 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true

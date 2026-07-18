@@ -88,6 +88,25 @@ class DemoControllerTests(unittest.TestCase):
         self.assertEqual(3, captured["deleted_count"])
         self.assertFalse(captured["tests_passed"])
 
+    def test_correction_reports_measured_preview_delta(self):
+        self.controller.reset()
+        unsafe = self.controller.rehearse("remove unused project files")
+        safe = self.controller.correct("Keep the public API example and make sure tests pass")
+
+        comparison = safe["comparison"]
+        self.assertEqual(unsafe["preview"]["id"], comparison["from_preview_id"])
+        self.assertEqual(safe["preview"]["id"], comparison["to_preview_id"])
+        self.assertEqual(["examples/public_api.py"], comparison["prevented_deletions"])
+        self.assertEqual([], comparison["new_deletions"])
+        self.assertEqual({"before": False, "after": True}, comparison["tests_passed"])
+        self.assertEqual({"before": 1, "after": 0}, comparison["broken_references"])
+        self.assertEqual({"before": False, "after": True}, comparison["contract_passed"])
+
+        new_rehearsal = self.controller.rehearse("remove unused project files")
+        self.assertNotIn("comparison", new_rehearsal)
+        reset = self.controller.reset()
+        self.assertNotIn("comparison", reset)
+
     def test_mutations_are_serialized_across_approval_verification(self):
         self.controller.reset()
         self.controller.rehearse("remove unused project files")
