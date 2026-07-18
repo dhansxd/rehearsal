@@ -80,6 +80,10 @@ The server binds only to loopback. Requests require a loopback Host and POSTs
 require a matching HTTP Origin. Approval binds the displayed preview ID and
 patch digest. This is single-user local-demo protection, not authentication.
 
+## Demo video
+
+[Watch the 82-second public demo on YouTube](https://youtu.be/DtrSfGfx0og).
+
 ## Built with Codex and GPT-5.6
 
 Codex CLI with official ChatGPT authentication and GPT-5.6 served as the sole
