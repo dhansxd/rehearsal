@@ -43,7 +43,8 @@ diffs, and proofs remain real in both modes.
    preserved, tests and clauses pass. A measured comparison shows exactly what
    the correction changed: the prevented deletion and before→after test,
    reference, and contract proof.
-5. Approve the exact state. Rehearsal applies the approved binary Git patch,
+5. Inspect the exact preview, patch, base commit/index, and contract binding,
+   then approve the exact state. Rehearsal applies the approved binary Git patch,
    matches the patch digest and every file hash, re-runs tests and proof, and
    emits an inspectable, downloadable receipt. Approvals expire after five
    minutes and are single-use.
@@ -69,7 +70,7 @@ directory.
 Expected proof shape:
 
 ```text
-Ran 55 tests
+Ran 56 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true

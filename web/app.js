@@ -133,6 +133,11 @@ function render() {
   $('files').innerHTML = fileRows(preview);
   $('intent').textContent = preview.contract.intent;
   $('clauses').innerHTML = preview.contract_proof.clauses.map(clause => `<div class="clause"><span>${esc(clause.clause)}</span><span class="${clause.passed ? 'pass' : 'fail'}">${clause.passed ? 'PASS' : 'VIOLATED'}</span></div>`).join('');
+  $('approvalBinding').classList.toggle('hidden', state.stage !== 'safe');
+  $('bindingPreview').textContent = preview.id;
+  $('bindingPatch').textContent = preview.patch_digest;
+  $('bindingBase').textContent = `${preview.base_head} · ${preview.base_index_digest}`;
+  $('bindingContract').textContent = `revision ${preview.contract_revision} · ${preview.contract_digest}`;
   $('correction').classList.toggle('hidden', state.stage !== 'unsafe');
   $('approve').textContent = `Approve deletion of ${preview.deleted.length} files`;
   $('approve').classList.toggle('hidden', state.stage !== 'safe');
@@ -172,6 +177,7 @@ $('errorReset').onclick = () => post('/api/reset');
 $('errorRollback').onclick = () => post('/api/rollback');
 $('errorDismiss').onclick = clearError;
 $('copyDigest').onclick = () => state.receipt && navigator.clipboard.writeText(state.receipt.patch_digest);
+$('copyBindingDigest').onclick = () => state.preview && navigator.clipboard.writeText(state.preview.patch_digest);
 $('downloadReceipt').onclick = () => {
   if (!state.receipt) return;
   const blob = new Blob([JSON.stringify(state.receipt, null, 2)], {type: 'application/json'});

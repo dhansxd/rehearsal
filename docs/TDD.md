@@ -118,6 +118,17 @@ the delta. The UI renders only those measured values and reuses escaped,
 separator-aware path formatting; approval remains bound solely to the current
 preview ID and patch digest.
 
+## Pre-approval exact-state binding
+
+The approval control previously claimed an exact state, while its preview ID,
+patch digest, base commit/index digest, and contract revision/digest became
+inspectable only after apply. RED: the focused browser contract test failed
+because no accessible binding region or measured fields existed. GREEN: the
+safe pre-approval state now exposes those existing preview values, supports
+copying the full patch digest, and hides the card outside that state. Rendering
+uses `textContent`; the approval request remains bound to the same preview ID
+and patch digest, with no controller or protocol change.
+
 ## Security review hardening
 
 RED/GREEN groups cover the review findings: runtime reset containment; exact,

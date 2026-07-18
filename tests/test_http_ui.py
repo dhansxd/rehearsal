@@ -161,6 +161,19 @@ class BrowserRegressionTests(unittest.TestCase):
             self.assertIn(evidence, script)
         self.assertNotIn("examples/public_api.py", script)
 
+    def test_ui_exposes_exact_state_binding_before_approval(self):
+        html = (ROOT / "web/index.html").read_text()
+        script = (ROOT / "web/app.js").read_text()
+        self.assertIn('id="approvalBinding"', html)
+        self.assertIn('aria-labelledby="approvalBindingTitle"', html)
+        for field in ("bindingPreview", "bindingPatch", "bindingBase", "bindingContract"):
+            self.assertIn(f'id="{field}"', html)
+        for evidence in ("preview.id", "preview.patch_digest", "preview.base_index_digest",
+                         "preview.contract_digest", "preview.contract_revision"):
+            self.assertIn(evidence, script)
+        self.assertIn("state.stage !== 'safe'", script)
+        self.assertIn("navigator.clipboard.writeText(state.preview.patch_digest)", script)
+
     def test_long_operations_show_named_accessible_progress(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()
