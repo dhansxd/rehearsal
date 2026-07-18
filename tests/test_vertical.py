@@ -61,6 +61,8 @@ class VerticalSliceTests(unittest.TestCase):
         preview = self.engine.rehearse("remove unused project files")
         self.assertFalse(preview.contract_proof.passed)
         self.assertTrue(any("README.md" in item for item in preview.contract_proof.violations))
+        link_clause = next(item for item in preview.contract_proof.clauses if item["clause"] == "no broken references")
+        self.assertEqual("Markdown inline local-link scan", link_clause["proof"])
 
     def test_failing_tests_block_approval(self):
         preview = self.engine.rehearse("remove unused project files")
@@ -77,6 +79,26 @@ class VerticalSliceTests(unittest.TestCase):
         safe = self._safe_preview()
         git(self.repo, "update-index", "--chmod=+x", "README.md")
         with self.assertRaisesRegex(ApprovalError, "stale"):
+            self.engine.approve(safe.id)
+
+    def test_approval_expires_after_bounded_interval(self):
+        safe = self._safe_preview()
+        safe.approval_expires_at = 0
+        with self.assertRaisesRegex(ApprovalError, "expired"):
+            self.engine.approve(safe.id)
+
+    def test_new_rehearsal_invalidates_older_preview_approval(self):
+        older = self._safe_preview()
+        newer = self.engine.rehearse(older.contract.intent, older.contract)
+        self.assertNotEqual(older.id, newer.id)
+        with self.assertRaisesRegex(ApprovalError, "obsolete"):
+            self.engine.approve(older.id)
+
+    def test_applied_preview_approval_cannot_be_replayed(self):
+        safe = self._safe_preview()
+        receipt = self.engine.approve(safe.id)
+        self.engine.rollback(receipt.id)
+        with self.assertRaisesRegex(ApprovalError, "already used"):
             self.engine.approve(safe.id)
 
     def test_failed_apply_verification_recovers_and_proves_original_state(self):

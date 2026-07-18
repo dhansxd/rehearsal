@@ -56,6 +56,22 @@ class RuntimeRootSecurityTests(unittest.TestCase):
 
 
 class ContractSecurityTests(unittest.TestCase):
+    def test_contract_rejects_change_preserve_path_conflict(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            engine = RehearsalEngine.__new__(RehearsalEngine)
+            engine.repo = repo.resolve()
+            contract = OutcomeContract(
+                intent="cleanup", must_change=["README.md"], must_preserve=["README.md"]
+            )
+            with self.assertRaisesRegex(SafetyError, "both change and preserve"):
+                engine._validate_contract(contract)
+
+    def test_unknown_fallback_correction_fails_explicitly(self):
+        compiler = ContractCompiler(demo_mode=True)
+        with self.assertRaisesRegex(ValueError, "could not map"):
+            compiler.compile("Make it more enterprise", OutcomeContract(intent="cleanup"))
+
     def test_decoded_contract_requires_exact_schema(self):
         valid = OutcomeContract(intent="cleanup").to_dict()
         with self.assertRaises(ValueError):

@@ -56,6 +56,7 @@ class DemoController:
                          ("commit", "-qm", "seeded demo checkpoint")):
                 subprocess.run(["git", *args], cwd=self.workspace, check=True)
             self.engine = RehearsalEngine(self.workspace, self.runtime_root / "engine-state", trusted_seed=True)
+            self.engine.model_mode = self.compiler.mode
             self.preview = self.receipt = None
             self.stage = "ready"
             return self.state()

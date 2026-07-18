@@ -38,7 +38,8 @@ diffs, and proofs remain real in both modes.
    preserved, tests and clauses pass.
 5. Approve the exact state. Rehearsal applies the approved binary Git patch,
    matches the patch digest and every file hash, re-runs tests and proof, and
-   emits a receipt.
+   emits an inspectable, downloadable receipt. Approvals expire after five
+   minutes and are single-use.
 6. Click **One-click rollback** to restore and verify the original tree.
 
 The same path is available without a browser:
@@ -77,8 +78,9 @@ generic deterministic summary—never file names, test output, contents, hashes,
 or patches.
 
 The server binds only to loopback. Requests require a loopback Host and POSTs
-require a matching HTTP Origin. Approval binds the displayed preview ID and
-patch digest. This is single-user local-demo protection, not authentication.
+require a matching HTTP Origin plus a random per-process mutation nonce.
+Approval binds the displayed preview ID and patch digest. This is single-user
+local-demo protection, not authentication.
 
 ## Demo video
 

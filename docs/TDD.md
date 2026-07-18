@@ -58,3 +58,27 @@ was observed failing against the prior implementation before its minimum fix.
 Arbitrary untrusted repository execution is deliberately unsupported rather
 than presented as solved by a worktree; the engine rejects it without the
 trusted-seed flag.
+
+## 3-day quality program
+
+The accepted P0/P1 scope was implemented in focused RED/GREEN groups:
+
+- Contract correctness RED: conflict, unknown fallback, and proof-label tests
+  failed (two failures, one error). GREEN: 3/3 focused, then 34/34 full.
+- Approval freshness RED: expiry, replacement, and replay tests failed 3/3.
+  GREEN: 3/3 focused, then 37/37 full.
+- HTTP boundary RED: nonce, length matrix, timeout/headers, error redaction, and
+  browser bootstrap produced two failures and three errors. GREEN: 12/12
+  focused, then 42/42 full.
+- State/error/accessibility RED: all 3 UI contract tests failed. GREEN: 3/3
+  focused and 15/15 HTTP/UI, then 45/45 full.
+- Receipt RED: controller evidence and UI export tests failed 2/2. GREEN: 2/2
+  focused, then 47/47 full.
+- Progress RED: the named-stage test failed 1/1. GREEN: 1/1 focused, then 48/48
+  full.
+- Uncertain recovery wording RED: the API incorrectly returned unchanged;
+  GREEN: the tri-state regression passed, then 49/49 full.
+
+P1 crash journaling was not attempted because fully proving crash recovery and
+a process lease would add material risk to green P0 behavior. It remains an
+explicit post-hackathon limitation.

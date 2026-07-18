@@ -7,8 +7,10 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import uuid
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 from .contracts import OutcomeContract
@@ -52,6 +54,12 @@ class Preview:
     result_hashes: dict[str, str]
     base_head: str
     base_index_digest: str
+    approval_generated_at: float
+    approval_expires_at: float
+    transaction_id: str
+    contract_digest: str
+    contract_revision: int
+    generated_at: str
     explanation: str
     explanation_mode: str = "deterministic measured fallback"
 
@@ -59,8 +67,25 @@ class Preview:
 @dataclass
 class Receipt:
     id: str
+    transaction_id: str
+    repository: str
+    workspace: str
+    branch: str
+    base_head: str
+    base_state_digest: str
     preview_id: str
     patch_digest: str
+    contract_digest: str
+    contract_revision: int
+    generated_at: str
+    approved_at: str
+    model_mode: str
+    explanation_mode: str
+    checks_passed: int
+    checks_total: int
+    observed_state_digest: str
+    rollback_class: str
+    rollback_verified: bool
     verified: bool
     file_hashes: dict[str, str]
     tests: TestResult
@@ -70,6 +95,7 @@ class Receipt:
 
 class RehearsalEngine:
     SAFE_INTENT = re.compile(r"^[\w\s.,'\-]+$")
+    APPROVAL_TTL_SECONDS = 300
 
     def __init__(self, repo: Path, state_dir: Path | None = None, *, trusted_seed: bool = False):
         self.repo = Path(repo).resolve()
@@ -78,6 +104,11 @@ class RehearsalEngine:
         self.previews = {}
         self.receipts = {}
         self.worktrees = []
+        self.active_preview_id = None
+        self.used_preview_ids = set()
+        self.transaction_id = uuid.uuid4().hex
+        self.contract_revision = 0
+        self.model_mode = "deterministic demo fallback"
         self.trusted_seed = trusted_seed
         self._git(self.repo, "rev-parse", "--show-toplevel")
 
@@ -110,23 +141,37 @@ class RehearsalEngine:
         proof = self._prove(contract, status, tests, broken, worktree, base)
         delta = self._size(result, worktree) - self._size(base, self.repo)
         preview_id = uuid.uuid4().hex[:12]
+        generated_at = time.time()
+        self.contract_revision += 1
+        contract_digest = self._json_digest(contract.to_dict())
         digest = hashlib.sha256(patch.encode()).hexdigest()
         explanation = self._explain(status, tests, broken, proof, delta)
         preview = Preview(preview_id, contract, status["added"], status["changed"], status["deleted"], delta,
-                          broken, tests, proof, patch, digest, base, result, base_head, base_index, explanation)
+                          broken, tests, proof, patch, digest, base, result, base_head, base_index,
+                          generated_at, generated_at + self.APPROVAL_TTL_SECONDS,
+                          self.transaction_id, contract_digest, self.contract_revision,
+                          self._timestamp(generated_at), explanation)
         self.previews[preview_id] = preview
+        self.active_preview_id = preview_id
         return preview
 
     def approve(self, preview_id: str) -> Receipt:
         preview = self.previews.get(preview_id)
         if not preview:
             raise ApprovalError("Unknown preview")
+        if preview_id in self.used_preview_ids:
+            raise ApprovalError("Approval already used and cannot be replayed")
+        if preview_id != self.active_preview_id:
+            raise ApprovalError("Approval is obsolete because a newer preview exists")
+        if time.time() > preview.approval_expires_at:
+            raise ApprovalError("Approval expired; run a fresh rehearsal")
         if not preview.tests.passed or not preview.contract_proof.passed:
             raise ApprovalError("Approval blocked: tests and every contract clause must pass")
         if (self.snapshot(self.repo) != preview.base_hashes
                 or self._git(self.repo, "rev-parse", "HEAD").strip() != preview.base_head
                 or self._index_digest(self.repo) != preview.base_index_digest):
             raise ApprovalError("Preview is stale: the real workspace changed")
+        self.used_preview_ids.add(preview_id)
         patch_file = self.state_dir / f"{preview.id}.patch"
         patch_file.write_text(preview.patch)
         try:
@@ -150,7 +195,22 @@ class RehearsalEngine:
                 raise ApprovalError("Apply verification failed; recovery failed and workspace state is uncertain")
             raise ApprovalError("Apply verification failed; original state was restored and verified")
         receipt_id = uuid.uuid4().hex[:12]
-        receipt = Receipt(receipt_id, preview.id, preview.patch_digest, True, actual_hashes, tests, proof, "available")
+        checks_total = len(proof.clauses)
+        receipt = Receipt(
+            id=receipt_id, transaction_id=preview.transaction_id,
+            repository="bundled-trusted-demo", workspace=str(self.repo),
+            branch=self._git(self.repo, "branch", "--show-current").strip() or "detached",
+            base_head=preview.base_head, base_state_digest=self._json_digest(preview.base_hashes),
+            preview_id=preview.id, patch_digest=preview.patch_digest,
+            contract_digest=preview.contract_digest, contract_revision=preview.contract_revision,
+            generated_at=preview.generated_at, approved_at=self._timestamp(),
+            model_mode=self.model_mode, explanation_mode=preview.explanation_mode,
+            checks_passed=sum(1 for clause in proof.clauses if clause["passed"]),
+            checks_total=checks_total, observed_state_digest=self._json_digest(actual_hashes),
+            rollback_class="verified reverse Git patch", rollback_verified=False,
+            verified=True, file_hashes=actual_hashes, tests=tests,
+            contract_proof=proof, rollback="available",
+        )
         self.receipts[receipt_id] = (receipt, patch_file, preview.base_hashes)
         (self.state_dir / f"receipt-{receipt_id}.json").write_text(json.dumps(self.receipt_dict(receipt), indent=2))
         return receipt
@@ -174,6 +234,8 @@ class RehearsalEngine:
                 raise ApprovalError("Rollback failed; workspace remains applied and verified")
             raise ApprovalError("Rollback failed; recovery failed and workspace state is uncertain")
         receipt.rollback = "completed and verified"
+        receipt.rollback_verified = True
+        (self.state_dir / f"receipt-{receipt.id}.json").write_text(json.dumps(self.receipt_dict(receipt), indent=2))
 
     def _base_matches(self, preview):
         return (self.snapshot(self.repo) == preview.base_hashes
@@ -199,6 +261,15 @@ class RehearsalEngine:
     def _index_digest(self, root):
         staged = self._git(root, "ls-files", "--stage")
         return hashlib.sha256(staged.encode()).hexdigest()
+
+    @staticmethod
+    def _json_digest(value):
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+        return hashlib.sha256(encoded).hexdigest()
+
+    @staticmethod
+    def _timestamp(epoch=None):
+        return datetime.fromtimestamp(epoch, timezone.utc).isoformat() if epoch is not None else datetime.now(timezone.utc).isoformat()
 
     def snapshot(self, root: Path):
         root = Path(root)
@@ -285,7 +356,9 @@ class RehearsalEngine:
             if not tests.passed: violations.append("Test suite failed")
         if "no broken references" in contract.proof or "broken references" in contract.forbidden:
             ok = not broken
-            clauses.append({"clause": "no broken references", "passed": ok, "evidence": ", ".join(broken) or "reference scan clean"})
+            clauses.append({"clause": "no broken references", "passed": ok,
+                            "proof": "Markdown inline local-link scan",
+                            "evidence": ", ".join(broken) or "reference scan clean"})
             violations.extend(f"Broken reference in {path}" for path in broken)
         return ContractProof(not violations, clauses, violations)
 
@@ -316,6 +389,9 @@ class RehearsalEngine:
                 target.resolve().relative_to(self.repo)
             except ValueError as exc:
                 raise SafetyError(f"Contract path escapes repository: {path}") from exc
+        conflict = set(contract.must_change) & set(contract.must_preserve)
+        if conflict:
+            raise SafetyError(f"Contract path cannot be both change and preserve: {sorted(conflict)[0]}")
 
     @staticmethod
     def _size(snapshot, root):

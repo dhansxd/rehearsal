@@ -1,13 +1,27 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rehearsal — Correct the future</title><link rel="stylesheet" href="/style.css?v=20260718.2"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rehearsal — Correct the future</title><link rel="stylesheet" href="/style.css?v=20260718.5"></head>
 <body>
 <header><a class="brand" href="/">REHEARSAL <span>α</span></a><div id="mode" class="mode">MODEL</div></header>
-<main>
+<main id="app" aria-busy="false">
   <section class="hero"><p class="eyebrow">OUTCOME-BOUND APPROVAL</p><h1>See what your agent will do.<br><em>Correct the future.</em> Then commit it.</h1><p class="lede">A real Git rehearsal. Measured consequences. One exact approved state.</p></section>
   <section class="controls" aria-label="Rehearsal controls">
     <label for="prompt">TASK</label><div class="inputrow"><input id="prompt" value="remove unused project files"><button id="run">Run rehearsal <kbd>↵</kbd></button></div>
     <div id="correction" class="correction hidden"><label for="fix">CORRECT THE OUTCOME</label><div class="inputrow"><input id="fix" value="Keep the public API example and make sure tests pass"><button id="correct">Re-rehearse</button></div></div>
+  </section>
+  <p id="workspaceState" class="workspace-state" role="status">Preview only — your project has not changed.</p>
+  <section id="progressPanel" class="progress-panel hidden" role="status" aria-live="polite"><p class="eyebrow">CURRENT OPERATION</p><p id="progressStage">Candidate workspace</p></section>
+  <ol id="stageTimeline" class="stage-timeline" aria-label="Transaction stages"><li>Candidate workspace</li><li>Task execution</li><li>Diff measured</li><li>Tests</li><li>Contract</li><li>Review</li><li>Apply</li><li>Reverify</li><li>Rollback</li></ol>
+  <section id="errorPanel" class="error-panel hidden" role="alert" aria-labelledby="errorTitle">
+    <div><p class="eyebrow">FAIL-CLOSED ERROR</p><h2 id="errorTitle" tabindex="-1">Operation could not complete</h2></div>
+    <dl class="error-facts">
+      <div><dt>Operation</dt><dd id="errorOperation"></dd></div>
+      <div><dt>Workspace</dt><dd id="errorWorkspace"></dd></div>
+      <div><dt>Run ID</dt><dd id="errorRunId"></dd></div>
+    </dl>
+    <p id="errorMessage"></p>
+    <details><summary>Technical detail</summary><code id="errorDetail"></code></details>
+    <div class="error-actions"><button id="errorRetry">Retry operation</button><button id="errorReset" class="secondary">Reset demo</button><button id="errorRollback" class="danger hidden">Rollback applied state</button><button id="errorDismiss" class="secondary">Dismiss</button></div>
   </section>
   <section id="empty" class="empty"><div class="pulse"></div><p>Your isolated future state will appear here.</p></section>
   <section id="result" class="result hidden" aria-live="polite">
@@ -18,7 +32,7 @@
       <article><h3>OUTCOME CONTRACT</h3><p id="intent" class="intent"></p><div id="clauses"></div></article>
     </div>
     <div class="actions"><button id="reset" class="secondary">Reset demo</button><button id="approve" class="approve hidden">Approve exact state</button><button id="rollback" class="danger hidden">One-click rollback</button></div>
-    <article id="receipt" class="receipt hidden"><h3>EXECUTION RECEIPT</h3><div id="receiptBody"></div></article>
+    <article id="receipt" class="receipt hidden"><div class="receipt-head"><h3>EXECUTION RECEIPT</h3><a href="#howVerified">Verified — How verified</a></div><div id="receiptBody"></div><div class="actions"><button id="copyDigest" class="secondary">Copy full patch digest</button><button id="downloadReceipt">Download receipt JSON</button></div><details id="howVerified"><summary>How verified</summary><p>The observed file-state digest and staged patch digest matched the approved preview; trusted-seed tests and every contract clause passed again after apply.</p></details></article>
   </section>
-</main><footer>LOCAL ONLY · GIT/FILESYSTEM TASKS · NO ARBITRARY SHELL</footer><script src="/app.js?v=20260718.2"></script>
+</main><footer>LOCAL ONLY · TRUSTED BUNDLED DEMO · GIT/FILESYSTEM TASKS · NO ARBITRARY SHELL</footer><script src="/app.js?v=20260718.5"></script>
 </body></html>

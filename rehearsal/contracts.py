@@ -83,12 +83,18 @@ class ContractCompiler:
     def _fallback(self, correction, current):
         lowered = correction.lower()
         preserve = list(current.must_preserve)
+        recognized = False
         if "public api" in lowered or "example" in lowered:
+            recognized = True
             if "examples/public_api.py" not in preserve:
                 preserve.append("examples/public_api.py")
         proof = list(current.proof)
         if ("test" in lowered or "pass" in lowered) and "tests pass" not in proof:
             proof.append("tests pass")
+        if "test" in lowered or "pass" in lowered:
+            recognized = True
+        if not recognized:
+            raise ValueError("Deterministic fallback could not map that correction to supported contract clauses")
         return OutcomeContract(
             intent=current.intent,
             must_change=list(current.must_change),

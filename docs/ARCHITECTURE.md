@@ -33,7 +33,18 @@ Approval is a capability for one exact state. It requires a green test result
 and proof, an unchanged base snapshot, identical post-apply file hashes, an
 identical staged binary-patch digest, and independently green tests/proof.
 The base binding also includes HEAD and a digest of index modes/object IDs.
+Approval capabilities expire after five minutes, become obsolete when another
+preview is generated, and are consumed before apply so they cannot be replayed.
 
 Reset is confined to one canonical direct `demo-*` child of a dedicated runtime
 root outside the source tree, home, and filesystem root. The default runtime
 root is under the operating system temporary directory.
+
+Receipts link preview, apply, verification, and rollback with one transaction
+ID. They expose the full patch/contract/base/observed digests, contract revision,
+UTC timestamps, branch/workspace, model modes, check totals, and rollback proof.
+The UI can copy the full patch digest or export the complete receipt JSON.
+
+The frontend exposes named progress after 500 ms and uses persistent structured
+errors. These are presentation-level operation stages over the synchronous,
+serialized controller; they do not claim a durable background workflow.

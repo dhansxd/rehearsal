@@ -38,6 +38,32 @@ class DemoControllerTests(unittest.TestCase):
         self.assertEqual("rolled_back", rolled_back["stage"])
         self.assertEqual("completed and verified", rolled_back["receipt"]["rollback"])
 
+    def test_receipt_is_inspectable_and_links_one_transaction(self):
+        self.controller.reset()
+        self.controller.rehearse("remove unused project files")
+        safe = self.controller.correct("Keep the public API example and make sure tests pass")
+        applied = self.controller.approve(safe["preview"]["id"], safe["preview"]["patch_digest"])
+        receipt = applied["receipt"]
+        required = {
+            "id", "transaction_id", "repository", "workspace", "branch",
+            "base_head", "base_state_digest", "preview_id", "patch_digest",
+            "contract_digest", "contract_revision", "generated_at", "approved_at",
+            "model_mode", "explanation_mode", "checks_passed", "checks_total",
+            "observed_state_digest", "rollback_class", "rollback_verified", "verified",
+        }
+        self.assertTrue(required <= set(receipt))
+        self.assertEqual(safe["preview"]["transaction_id"], receipt["transaction_id"])
+        self.assertEqual(safe["preview"]["contract_digest"], receipt["contract_digest"])
+        self.assertEqual(64, len(receipt["patch_digest"]))
+        self.assertEqual(64, len(receipt["base_state_digest"]))
+        self.assertEqual(64, len(receipt["observed_state_digest"]))
+        self.assertTrue(receipt["generated_at"].endswith("+00:00"))
+        self.assertTrue(receipt["approved_at"].endswith("+00:00"))
+        self.assertEqual(receipt["checks_total"], receipt["checks_passed"])
+        self.assertFalse(receipt["rollback_verified"])
+        rolled_back = self.controller.rollback()["receipt"]
+        self.assertTrue(rolled_back["rollback_verified"])
+
     def test_approval_is_bound_to_current_preview_id_and_digest(self):
         self.controller.reset()
         first = self.controller.rehearse("remove unused project files")
