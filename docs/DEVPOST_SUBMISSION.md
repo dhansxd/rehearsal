@@ -80,7 +80,7 @@ rollback: completed and verified
 
 ## Links
 
-- Repository: pending public GitHub URL
+- Repository: https://github.com/dhansxd/rehearsal
 - Demo video: pending public YouTube URL
 - Codex `/feedback` session proof: pending submission capture
 
