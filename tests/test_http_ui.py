@@ -149,17 +149,29 @@ class BrowserRegressionTests(unittest.TestCase):
         self.assertIn('href="#howVerified"', html)
         self.assertIn("application/json", script)
         self.assertIn("receipt.patch_digest", script)
+        self.assertIn("receipt.integrity.digest", script)
+        self.assertIn("Verify this export locally", html)
+        self.assertIn("python3 -m rehearsal.receipt", html)
 
     def test_ui_exposes_accessible_measured_preview_comparison(self):
         html = (ROOT / "web/index.html").read_text()
         script = (ROOT / "web/app.js").read_text()
         self.assertIn('id="comparison"', html)
         self.assertIn('aria-labelledby="comparisonTitle"', html)
-        for field in ("comparisonPrevented", "comparisonTests", "comparisonReferences", "comparisonContract"):
+        for field in ("comparisonPrevented", "comparisonTests", "comparisonReferences", "comparisonContract",
+                      "comparisonContractChanges"):
             self.assertIn(f'id="{field}"', html)
-        for evidence in ("prevented_deletions", "tests_passed", "broken_references", "contract_passed"):
+        for evidence in ("prevented_deletions", "tests_passed", "broken_references", "contract_passed",
+                         "contract_added"):
             self.assertIn(evidence, script)
         self.assertNotIn("examples/public_api.py", script)
+
+    def test_contract_delta_escapes_model_text_and_segments_paths(self):
+        script = (ROOT / "web/app.js").read_text()
+        self.assertIn("function contractDeltaHtml(contractAdded)", script)
+        self.assertIn("pathHtml(value)", script)
+        self.assertIn("esc(value)", script)
+        self.assertNotIn("${value}", script[script.index("function contractDeltaHtml"):script.index("function render")])
 
     def test_ui_exposes_exact_state_binding_before_approval(self):
         html = (ROOT / "web/index.html").read_text()

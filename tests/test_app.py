@@ -101,6 +101,15 @@ class DemoControllerTests(unittest.TestCase):
         self.assertEqual({"before": False, "after": True}, comparison["tests_passed"])
         self.assertEqual({"before": 1, "after": 0}, comparison["broken_references"])
         self.assertEqual({"before": False, "after": True}, comparison["contract_passed"])
+        self.assertEqual(
+            {
+                "must_change": [],
+                "must_preserve": ["examples/public_api.py"],
+                "forbidden": [],
+                "proof": [],
+            },
+            comparison["contract_added"],
+        )
 
         new_rehearsal = self.controller.rehearse("remove unused project files")
         self.assertNotIn("comparison", new_rehearsal)

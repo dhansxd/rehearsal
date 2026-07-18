@@ -118,6 +118,33 @@ the delta. The UI renders only those measured values and reuses escaped,
 separator-aware path formatting; approval remains bound solely to the current
 preview ID and patch digest.
 
+## Semantic correction delta
+
+The measured preview comparison showed resulting file, test, and reference
+changes but omitted the exact Outcome Contract constraint introduced by the
+correction. That left the semantic cause of the safer preview implicit.
+
+RED: the controller comparison test failed because `contract_added` was absent;
+the UI contract failed because it had no accessible contract-change region or
+escaped renderer. GREEN: comparison derives ordered additions across
+`must_change`, `must_preserve`, `forbidden`, and `proof` directly from the two
+validated contracts. Path constraints use separator-aware, segment-by-segment
+escaping; other clause text uses the existing HTML escape boundary. Approval
+protocol, preview/digest binding, execution, receipt, and rollback are unchanged.
+
+## Portable receipt integrity
+
+Downloaded receipts were inspectable JSON but had no offline mutation check.
+RED: the new focused test could not import an offline verifier; the UI contract
+then failed because no integrity digest or verification command was exposed.
+GREEN: receipt serialization now adds a canonical, sorted-JSON SHA-256 envelope;
+the stdlib-only `python3 -m rehearsal.receipt <file>` verifier checks that digest,
+the four evidence-digest shapes, fully passed apply checks, and consistent
+rollback state. A changed field fails closed, and verified rollback produces a
+new valid digest. The UI labels this accurately as internal consistency—not a
+signature or independent attestation. Approval binding and execution are
+unchanged.
+
 ## Pre-approval exact-state binding
 
 The approval control previously claimed an exact state, while its preview ID,

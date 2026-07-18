@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 from .contracts import OutcomeContract
+from .receipt import with_receipt_integrity
 
 
 class SafetyError(ValueError):
@@ -285,7 +286,7 @@ class RehearsalEngine:
 
     @staticmethod
     def receipt_dict(receipt):
-        return asdict(receipt)
+        return with_receipt_integrity(asdict(receipt))
 
     def _perform_cleanup(self, root, contract):
         candidates = [Path("notes.tmp"), Path("scratch/old_benchmark.txt"), Path("examples/public_api.py")]

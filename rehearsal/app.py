@@ -125,6 +125,7 @@ class DemoController:
     def _compare_previews(before, after):
         before_deleted = set(before.deleted)
         after_deleted = set(after.deleted)
+        contract_fields = ("must_change", "must_preserve", "forbidden", "proof")
         return {
             "from_preview_id": before.id,
             "to_preview_id": after.id,
@@ -136,6 +137,11 @@ class DemoController:
             },
             "contract_passed": {
                 "before": before.contract_proof.passed, "after": after.contract_proof.passed,
+            },
+            "contract_added": {
+                field: [value for value in getattr(after.contract, field)
+                        if value not in getattr(before.contract, field)]
+                for field in contract_fields
             },
         }
 

@@ -24,7 +24,7 @@ A user can correct the unwanted future in plain English. GPT-5.6 compiles that c
 - GPT-5.6 Responses API for semantic contract compilation and path-free consequence explanation
 - Deterministic mechanics for diff, tests, hashes, approval, and rollback
 - Local responsive HTML/CSS/JavaScript UI
-- 57 automated behavior, security, recovery, and HTTP/UI tests
+- 60 automated behavior, security, recovery, and HTTP/UI tests
 
 Codex GPT-5.6 served as the sole product-code implementation owner in one canonical official Codex thread. Dyra directed product scope, research, media, and independent acceptance without becoming a second code owner.
 
@@ -40,13 +40,13 @@ A security review exposed unsafe workspace deletion, cross-site local requests, 
 
 - Real unsafe first rehearsal derived from repository state
 - Natural-language correction into an enforceable Outcome Contract
-- Measured unsafe-to-corrected preview comparison
+- Measured unsafe-to-corrected preview comparison with the exact contract constraint added
 - Inspectable exact-state binding before approval
 - Deterministic proof evidence visible for every contract clause
 - Exact preview-to-reality verification
 - Verified process-local apply and rollback recovery
 - Loopback-only, Origin/Host-protected local server
-- 57 passing tests
+- 60 passing tests
 - Full browser path verified: reset → rehearse → correct → approve → receipt → rollback
 - No third-party dependencies
 
@@ -74,7 +74,7 @@ python3 -m unittest discover -v
 Expected result:
 
 ```text
-Ran 57 tests
+Ran 60 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true

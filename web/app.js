@@ -108,6 +108,15 @@ function clauseRows(preview) {
   }).join('');
 }
 
+function contractDeltaHtml(contractAdded) {
+  const labels = {must_change: 'Must change', must_preserve: 'Must preserve', forbidden: 'Forbidden', proof: 'Proof'};
+  const pathFields = new Set(['must_change', 'must_preserve']);
+  return Object.entries(contractAdded).flatMap(([field, values]) => values.map(value => {
+    const rendered = pathFields.has(field) ? pathHtml(value) : esc(value);
+    return `<span><b>${esc(labels[field] || field)}:</b> ${rendered}</span>`;
+  })).join('');
+}
+
 function render() {
   $('mode').textContent = state.model_mode || 'MODEL';
   $('workspaceState').textContent = workspaceMessages[state.stage] || workspaceMessages.ready;
@@ -135,6 +144,7 @@ function render() {
     $('comparisonReferences').textContent = `${comparison.broken_references.before} → ${comparison.broken_references.after}`;
     $('comparisonContract').textContent = `${passLabel(comparison.contract_passed.before)} → ${passLabel(comparison.contract_passed.after)}`;
     $('comparisonPaths').innerHTML = comparison.prevented_deletions.map(path => `<span>${pathHtml(path)}</span>`).join('');
+    $('comparisonContractChanges').innerHTML = contractDeltaHtml(comparison.contract_added);
   }
   $('metrics').innerHTML = `<span class="metric"><strong>${preview.deleted.length}</strong> deleted</span><span class="metric"><strong>${preview.disk_delta}</strong> bytes</span><span class="metric ${preview.tests.passed ? 'pass' : 'fail'}">tests <strong>${preview.tests.passed ? 'PASS' : 'FAIL'}</strong></span>`;
   $('files').innerHTML = fileRows(preview);
@@ -153,7 +163,7 @@ function render() {
   $('receipt').classList.toggle('hidden', !state.receipt);
   if (state.receipt) {
     const receipt = state.receipt;
-    $('receiptBody').innerHTML = `<dl class="receipt-facts"><div><dt>Transaction</dt><dd><code>${esc(receipt.transaction_id)}</code></dd></div><div><dt>Preview</dt><dd><code>${esc(receipt.preview_id)}</code></dd></div><div><dt>Branch</dt><dd>${esc(receipt.branch)}</dd></div><div><dt>Checks</dt><dd>${receipt.checks_passed}/${receipt.checks_total} passed</dd></div><div><dt>Patch digest</dt><dd><code>${esc(receipt.patch_digest)}</code></dd></div><div><dt>Base state</dt><dd><code>${esc(receipt.base_state_digest)}</code></dd></div><div><dt>Observed state</dt><dd><code>${esc(receipt.observed_state_digest)}</code></dd></div><div><dt>Contract</dt><dd>revision ${receipt.contract_revision} · <code>${esc(receipt.contract_digest)}</code></dd></div><div><dt>Approved</dt><dd>${esc(receipt.approved_at)}</dd></div><div><dt>Rollback</dt><dd>${esc(receipt.rollback)} · ${receipt.rollback_verified ? 'verified' : 'available'}</dd></div></dl>`;
+    $('receiptBody').innerHTML = `<dl class="receipt-facts"><div><dt>Transaction</dt><dd><code>${esc(receipt.transaction_id)}</code></dd></div><div><dt>Preview</dt><dd><code>${esc(receipt.preview_id)}</code></dd></div><div><dt>Branch</dt><dd>${esc(receipt.branch)}</dd></div><div><dt>Checks</dt><dd>${receipt.checks_passed}/${receipt.checks_total} passed</dd></div><div><dt>Patch digest</dt><dd><code>${esc(receipt.patch_digest)}</code></dd></div><div><dt>Base state</dt><dd><code>${esc(receipt.base_state_digest)}</code></dd></div><div><dt>Observed state</dt><dd><code>${esc(receipt.observed_state_digest)}</code></dd></div><div><dt>Contract</dt><dd>revision ${receipt.contract_revision} · <code>${esc(receipt.contract_digest)}</code></dd></div><div><dt>Receipt integrity</dt><dd>SHA-256 · <code>${esc(receipt.integrity.digest)}</code></dd></div><div><dt>Approved</dt><dd>${esc(receipt.approved_at)}</dd></div><div><dt>Rollback</dt><dd>${esc(receipt.rollback)} · ${receipt.rollback_verified ? 'verified' : 'available'}</dd></div></dl>`;
   }
 }
 

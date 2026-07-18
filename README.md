@@ -42,8 +42,8 @@ diffs, and proofs remain real in both modes.
 4. The second isolated rehearsal is green: junk is deleted, the example is
    preserved, tests and clauses pass. Each clause shows its deterministic proof
    method/result. A measured comparison shows exactly what
-   the correction changed: the prevented deletion and before→after test,
-   reference, and contract proof.
+   the correction changed: the exact added contract constraint, prevented
+   deletion, and before→after test, reference, and contract proof.
 5. Inspect the exact preview, patch, base commit/index, and contract binding,
    then approve the exact state. Rehearsal applies the approved binary Git patch,
    matches the patch digest and every file hash, re-runs tests and proof, and
@@ -71,7 +71,7 @@ directory.
 Expected proof shape:
 
 ```text
-Ran 57 tests
+Ran 60 tests
 OK
 ready → unsafe → safe → applied → rolled_back
 verified: true
@@ -111,6 +111,17 @@ local-demo protection, not authentication.
 
 After apply, Rehearsal re-measures the observed state, reruns trusted-seed tests
 and every contract clause, and exposes the evidence in a downloadable receipt.
+
+The exported JSON includes a canonical SHA-256 integrity envelope and can be
+checked without running the app:
+
+```bash
+python3 -m rehearsal.receipt rehearsal-receipt-….json
+```
+
+This detects changed receipt contents and validates the apply/rollback proof
+fields. It is intentionally an internal-consistency checksum, not a signature
+or third-party attestation.
 
 ## Built with Codex and GPT-5.6
 
